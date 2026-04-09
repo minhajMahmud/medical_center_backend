@@ -10,6 +10,11 @@ String? _jwtSecret(Session session) {
     return fromPasswords.trim();
   }
 
+  final fromPasswordEnv = Platform.environment['SERVERPOD_PASSWORD_jwtSecret'];
+  if (fromPasswordEnv != null && fromPasswordEnv.trim().isNotEmpty) {
+    return fromPasswordEnv.trim();
+  }
+
   // Allow runtime env as fallback (useful for Railway).
   final fromEnv = Platform.environment['JWT_SECRET'];
   if (fromEnv != null && fromEnv.trim().isNotEmpty) {
@@ -20,6 +25,25 @@ String? _jwtSecret(Session session) {
   final fromServiceSecret = session.passwords['serviceSecret'];
   if (fromServiceSecret != null && fromServiceSecret.trim().isNotEmpty) {
     return fromServiceSecret.trim();
+  }
+
+  final fromServerpodServiceSecret =
+      Platform.environment['SERVERPOD_SERVICE_SECRET'];
+  if (fromServerpodServiceSecret != null &&
+      fromServerpodServiceSecret.trim().isNotEmpty) {
+    return fromServerpodServiceSecret.trim();
+  }
+
+  final fromServiceSecretEnv = Platform.environment['SERVICE_SECRET'];
+  if (fromServiceSecretEnv != null && fromServiceSecretEnv.trim().isNotEmpty) {
+    return fromServiceSecretEnv.trim();
+  }
+
+  final fromServerpodPasswordServiceSecret =
+      Platform.environment['SERVERPOD_PASSWORD_serviceSecret'];
+  if (fromServerpodPasswordServiceSecret != null &&
+      fromServerpodPasswordServiceSecret.trim().isNotEmpty) {
+    return fromServerpodPasswordServiceSecret.trim();
   }
 
   return null;

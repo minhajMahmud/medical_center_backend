@@ -1,3 +1,5 @@
+backup_local.sql
+*.sql.bak
 # Miscellaneous
 *.class
 *.log
