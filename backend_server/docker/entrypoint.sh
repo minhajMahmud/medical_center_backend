@@ -174,15 +174,43 @@ BEGIN { in_database = 0 }
   mv "${tmp_config_file}" config/production.yaml
 fi
 
-# Optional convenience mapping for service secret.
-if [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ] && [ -n "${SERVICE_SECRET:-}" ]; then
-  export SERVERPOD_PASSWORD_serviceSecret="${SERVICE_SECRET}"
+# Optional convenience mapping for auth/service secrets.
+# Prefer explicit Serverpod password env vars when already provided.
+if [ -z "${SERVERPOD_PASSWORD_jwtSecret:-}" ]; then
+  if [ -n "${JWT_SECRET:-}" ]; then
+    export SERVERPOD_PASSWORD_jwtSecret="${JWT_SECRET}"
+  elif [ -n "${AUTH_JWT_SECRET:-}" ]; then
+    export SERVERPOD_PASSWORD_jwtSecret="${AUTH_JWT_SECRET}"
+  elif [ -n "${SERVICE_SECRET:-}" ]; then
+    export SERVERPOD_PASSWORD_jwtSecret="${SERVICE_SECRET}"
+  fi
+fi
+
+if [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ]; then
+  if [ -n "${SERVICE_SECRET:-}" ]; then
+    export SERVERPOD_PASSWORD_serviceSecret="${SERVICE_SECRET}"
+  elif [ -n "${SERVERPOD_SERVICE_SECRET:-}" ]; then
+    export SERVERPOD_PASSWORD_serviceSecret="${SERVERPOD_SERVICE_SECRET}"
+  elif [ -n "${JWT_SECRET:-}" ]; then
+    export SERVERPOD_PASSWORD_serviceSecret="${JWT_SECRET}"
+  fi
+fi
+
+# Keep both secrets aligned if only one side is set.
+if [ -z "${SERVERPOD_PASSWORD_jwtSecret:-}" ] && [ -n "${SERVERPOD_PASSWORD_serviceSecret:-}" ]; then
+  export SERVERPOD_PASSWORD_jwtSecret="${SERVERPOD_PASSWORD_serviceSecret}"
+fi
+
+if [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ] && [ -n "${SERVERPOD_PASSWORD_jwtSecret:-}" ]; then
+  export SERVERPOD_PASSWORD_serviceSecret="${SERVERPOD_PASSWORD_jwtSecret}"
 fi
 
 echo "[entrypoint] DB config source: ${DB_SOURCE}" >&2
 echo "[entrypoint] DB password source: ${DB_PASS_SOURCE}" >&2
 echo "[entrypoint] DB password came from URL: ${DB_PASS_FROM_URL}" >&2
 echo "[entrypoint] DB password length: ${#DB_PASS}" >&2
+echo "[entrypoint] JWT secret provided: $( [ -n "${SERVERPOD_PASSWORD_jwtSecret:-}" ] && echo true || echo false )" >&2
+echo "[entrypoint] Service secret provided: $( [ -n "${SERVERPOD_PASSWORD_serviceSecret:-}" ] && echo true || echo false )" >&2
 echo "[entrypoint] DB host: ${DB_HOST:-<from config>}" >&2
 echo "[entrypoint] DB port: ${DB_PORT:-<from config>}" >&2
 echo "[entrypoint] DB name: ${DB_NAME:-<from config>}" >&2
