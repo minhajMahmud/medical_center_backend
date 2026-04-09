@@ -22,7 +22,8 @@ class AuthEndpoint extends Endpoint {
       return fromPasswords.trim();
     }
 
-    final fromPasswordEnv = Platform.environment['SERVERPOD_PASSWORD_jwtSecret'];
+    final fromPasswordEnv =
+        Platform.environment['SERVERPOD_PASSWORD_jwtSecret'];
     if (fromPasswordEnv != null && fromPasswordEnv.trim().isNotEmpty) {
       return fromPasswordEnv.trim();
     }
