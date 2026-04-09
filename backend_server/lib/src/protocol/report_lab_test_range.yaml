@@ -1,0 +1,5 @@
+class: LabTestRangeRow
+fields:
+  testName: String
+  count: int
+  totalAmount: double

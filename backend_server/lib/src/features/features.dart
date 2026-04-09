@@ -1,0 +1,10 @@
+export 'admin/presentation/endpoints/admin_endpoints.dart';
+export 'admin/presentation/endpoints/admin_inventory_endpoints.dart';
+export 'admin/presentation/endpoints/admin_report_endpoints.dart';
+export 'auth/presentation/endpoints/auth_endpoint.dart';
+export 'dispenser/presentation/endpoints/dispenser_endpoints.dart';
+export 'doctor/presentation/endpoints/doctor_endpoints.dart';
+export 'lab/presentation/endpoints/lab_endpoints.dart';
+export 'notifications/presentation/endpoints/notifications_endpoint.dart';
+export 'password/presentation/endpoints/password_endpoint.dart';
+export 'patient/presentation/endpoints/patient_endpoints.dart';

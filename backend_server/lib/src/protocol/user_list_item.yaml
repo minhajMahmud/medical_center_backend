@@ -1,0 +1,9 @@
+class: UserListItem
+fields:
+  userId: String
+  name: String
+  email: String
+  role: String
+  phone: String?
+  active: bool
+  profilePictureUrl: String?

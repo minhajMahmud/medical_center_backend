@@ -1,0 +1,6 @@
+class: MedicineStockRangeRow
+fields:
+  medicineName: String
+  fromQuantity: int
+  used: int
+  toQuantity: int

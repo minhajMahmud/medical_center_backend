@@ -1,0 +1,6 @@
+class: StockReport
+fields:
+  itemName: String
+  previous: int
+  current: int
+  used: int

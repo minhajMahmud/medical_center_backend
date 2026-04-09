@@ -1,0 +1,6 @@
+class: LabAnalyticsShiftStat
+fields:
+  shift: String
+  total: int
+  submitted: int
+  productivityPercent: double

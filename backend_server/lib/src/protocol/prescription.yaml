@@ -1,0 +1,20 @@
+class: Prescription
+fields:
+  id: int? # BIGSERIAL
+  patientId: int? # BIGINT
+  doctorId: int # BIGINT
+  doctorName: String?
+  name: String?
+  age: int?
+  mobileNumber: String?
+  gender: String? # male or female
+  prescriptionDate: DateTime?
+  cc: String?
+  oe: String?
+  bp: String?
+  temperature: String?
+  advice: String?
+  test: String?
+  nextVisit: String?
+  isOutside: bool?
+  createdAt: DateTime?

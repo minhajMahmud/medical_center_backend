@@ -1,0 +1,6 @@
+class: PrescriptionStats
+fields:
+  today: int
+  week: int
+  month: int
+  year: int

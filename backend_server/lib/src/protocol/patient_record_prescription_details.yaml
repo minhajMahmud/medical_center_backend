@@ -1,0 +1,14 @@
+class: PatientPrescriptionDetails
+fields:
+  prescriptionId: int
+  name: String
+  mobileNumber: String?
+  gender: String?
+  age: int?
+  cc: String?
+  oe: String?
+  bp: String?
+  temperature: String?
+  advice: String?
+  test: String?
+  items: List<PatientPrescribedItem>

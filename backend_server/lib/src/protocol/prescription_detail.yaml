@@ -1,0 +1,6 @@
+class: PrescriptionDetail
+fields:
+  prescription: Prescription
+  items: List<PrescribedItem>
+  doctorName: String?          # নতুন ফিল্ড
+  doctorSignatureUrl: String?  # নতুন ফিল্ড

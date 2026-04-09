@@ -1,0 +1,8 @@
+class: MonthlyBreakdown
+fields:
+  month: int
+  total: int
+  student: int
+  teacher: int
+  outside: int
+  revenue: double

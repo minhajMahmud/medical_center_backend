@@ -1,0 +1,9 @@
+BEGIN;
+
+ALTER TABLE prescriptions
+  ADD COLUMN IF NOT EXISTS bp TEXT;
+
+ALTER TABLE prescriptions
+  ADD COLUMN IF NOT EXISTS temperature TEXT;
+
+COMMIT;

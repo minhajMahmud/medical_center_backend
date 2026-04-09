@@ -1,0 +1,17 @@
+class: PatientExternalReport
+fields:
+  reportId: int?
+  patientId: int
+  type: String
+  reportDate: DateTime
+  filePath: String
+  prescribedDoctorId: int
+  prescriptionId: int?
+  uploadedBy: int
+  reviewed: bool
+  createdAt: DateTime?
+  doctorNotes: String?
+  visibleToPatient: bool, default=false
+  reviewAction: String?
+  reviewedAt: DateTime?
+  reviewedBy: int?

@@ -1,0 +1,16 @@
+class: LabAnalyticsSnapshot
+fields:
+  totalResults: int
+  submittedResults: int
+  pendingResults: int
+  urgentResults: int
+  avgTatHours: double
+  estimatedRevenue: double
+  submittedRevenue: double
+  fromDate: DateTime?
+  toDateExclusive: DateTime?
+  patientType: String
+  dailyTrend: List<LabAnalyticsDailyPoint>
+  topTests: List<LabAnalyticsTestCount>
+  categoryDistribution: List<LabAnalyticsCategoryCount>
+  shiftProductivity: List<LabAnalyticsShiftStat>

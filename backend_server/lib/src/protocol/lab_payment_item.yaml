@@ -1,0 +1,18 @@
+class: LabPaymentItem
+fields:
+  resultId: int
+  testId: int
+  serialNo: String
+  patientName: String
+  mobileNumber: String
+  patientType: String
+  testName: String
+  amount: double
+  createdAt: DateTime
+  isUploaded: bool
+  submittedAt: DateTime?
+  paymentStatus: String
+  paymentMethod: String?
+  transactionId: String?
+  paidAt: DateTime?
+  patientNotifiedAt: DateTime?

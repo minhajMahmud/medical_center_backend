@@ -1,0 +1,9 @@
+class: Roster
+fields:
+  rosterId: int?
+  staffId: int
+  staffName: String
+  staffRole: String
+  shift: String
+  shiftDate: DateTime
+

@@ -1,0 +1,7 @@
+enum: RosterUserRole
+values:
+  - ADMIN
+  - DOCTOR
+  - LAB_STAFF
+  - DISPENSER
+  - STAFF

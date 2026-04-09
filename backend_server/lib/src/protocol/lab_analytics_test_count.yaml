@@ -1,0 +1,4 @@
+class: LabAnalyticsTestCount
+fields:
+  testName: String
+  count: int

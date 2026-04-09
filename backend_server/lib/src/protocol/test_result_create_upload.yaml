@@ -1,0 +1,11 @@
+class: TestResult
+fields:
+  resultId: int?
+  testId: int
+  patientName: String
+  mobileNumber: String
+  patientType: String
+  isUploaded: bool
+  attachmentPath: String?
+  submittedAt: DateTime?
+  createdAt: DateTime?

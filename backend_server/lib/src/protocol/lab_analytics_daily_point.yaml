@@ -1,0 +1,5 @@
+class: LabAnalyticsDailyPoint
+fields:
+  day: DateTime
+  total: int
+  submitted: int

@@ -1,0 +1,9 @@
+class: PrescriptionList
+fields:
+  prescriptionId: int
+  date: DateTime
+  doctorName: String
+  revisedFromPrescriptionId: int?
+  sourceReportId: int?
+  sourceReportType: String?
+  sourceReportCreatedAt: DateTime?

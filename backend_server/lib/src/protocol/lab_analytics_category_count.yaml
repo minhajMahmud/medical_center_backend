@@ -1,0 +1,4 @@
+class: LabAnalyticsCategoryCount
+fields:
+  category: String
+  count: int

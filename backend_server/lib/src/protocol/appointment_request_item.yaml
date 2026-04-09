@@ -1,0 +1,17 @@
+class: AppointmentRequestItem
+fields:
+  appointmentRequestId: int
+  patientId: int
+  doctorId: int
+  patientName: String
+  patientPhone: String
+  appointmentDate: DateTime
+  appointmentTime: String
+  reason: String
+  notes: String?
+  mode: String
+  urgent: bool
+  status: String
+  declineReason: String?
+  createdAt: DateTime
+  actedAt: DateTime?
