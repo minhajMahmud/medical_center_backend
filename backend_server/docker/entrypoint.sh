@@ -7,6 +7,10 @@ DB_NAME="${PGDATABASE:-}"
 DB_USER="${PGUSER:-}"
 DB_PASS="${PGPASSWORD:-}"
 
+if [ -z "${DB_PASS}" ]; then
+  DB_PASS="${POSTGRES_PASSWORD:-${DATABASE_PASSWORD:-${DB_PASSWORD:-}}}"
+fi
+
 if [ -n "${DATABASE_URL:-}" ]; then
   db_url_no_scheme="${DATABASE_URL#*://}"
   db_credentials_and_host="${db_url_no_scheme%%/*}"
