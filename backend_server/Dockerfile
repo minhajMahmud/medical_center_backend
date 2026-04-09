@@ -1,10 +1,10 @@
 # Build stage
-FROM dart:3.5.0 AS build
+FROM dart:3.11.4 AS build
 WORKDIR /app
 COPY . .
 
 # Install dependencies and compile the server executable
-RUN dart pub get --no-dev
+RUN dart pub get
 RUN dart compile exe bin/main.dart -o bin/server
 
 # Final stage

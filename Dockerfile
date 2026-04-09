@@ -1,12 +1,12 @@
 # Build stage
-FROM dart:3.5.0 AS build
+FROM dart:3.11.4 AS build
 WORKDIR /app
 
 # Copy server source from subdirectory repository layout
 COPY backend_server/ ./
 
 # Install dependencies and compile the server executable
-RUN dart pub get --no-dev
+RUN dart pub get
 RUN dart compile exe bin/main.dart -o bin/server
 
 # Final stage
