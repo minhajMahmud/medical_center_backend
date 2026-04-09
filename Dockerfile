@@ -1,5 +1,5 @@
 # Build stage
-FROM dart:3.11.4 AS build
+FROM dart:stable AS build
 WORKDIR /app
 
 # Copy server source from subdirectory repository layout
