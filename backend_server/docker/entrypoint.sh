@@ -6,13 +6,37 @@ DB_PORT="${PGPORT:-}"
 DB_NAME="${PGDATABASE:-}"
 DB_USER="${PGUSER:-}"
 DB_PASS="${PGPASSWORD:-}"
+DB_PASS_SOURCE=""
+DB_PASS_FROM_URL="false"
+
+if [ -n "${PGPASSWORD:-}" ]; then
+  DB_PASS_SOURCE="PGPASSWORD"
+fi
+
+url_decode() {
+  # Decode percent-encoded values from connection URLs (e.g. Railway DATABASE_URL).
+  # shellcheck disable=SC2001
+  encoded="$(printf '%s' "$1" | sed 's/%/\\x/g')"
+  printf '%b' "${encoded}"
+}
 
 if [ -z "${DB_PASS}" ]; then
   DB_PASS="${POSTGRES_PASSWORD:-${DATABASE_PASSWORD:-${DB_PASSWORD:-}}}"
+  if [ -n "${DB_PASS}" ]; then
+    if [ -n "${POSTGRES_PASSWORD:-}" ]; then
+      DB_PASS_SOURCE="POSTGRES_PASSWORD"
+    elif [ -n "${DATABASE_PASSWORD:-}" ]; then
+      DB_PASS_SOURCE="DATABASE_PASSWORD"
+    elif [ -n "${DB_PASSWORD:-}" ]; then
+      DB_PASS_SOURCE="DB_PASSWORD"
+    fi
+  fi
 fi
 
-if [ -n "${DATABASE_URL:-}" ]; then
-  db_url_no_scheme="${DATABASE_URL#*://}"
+DB_URL="${DATABASE_URL:-${DATABASE_PRIVATE_URL:-${DATABASE_PUBLIC_URL:-${POSTGRES_URL:-${PGURL:-}}}}}"
+
+if [ -n "${DB_URL}" ]; then
+  db_url_no_scheme="${DB_URL#*://}"
   db_credentials_and_host="${db_url_no_scheme%%/*}"
   db_path_and_query="${db_url_no_scheme#*/}"
   db_name_from_url="${db_path_and_query%%\?*}"
@@ -21,12 +45,20 @@ if [ -n "${DATABASE_URL:-}" ]; then
     db_credentials="${db_credentials_and_host%@*}"
     db_host_port="${db_credentials_and_host#*@}"
 
-    if [ -z "${DB_USER}" ]; then
-      DB_USER="${db_credentials%%:*}"
+    db_user_from_url="${db_credentials%%:*}"
+
+    db_user_decoded="$(url_decode "${db_user_from_url}")"
+    if [ -n "${db_user_decoded}" ]; then
+      DB_USER="${db_user_decoded}"
     fi
 
-    if [ -z "${DB_PASS}" ] && [ "${db_credentials#*:}" != "${db_credentials}" ]; then
-      DB_PASS="${db_credentials#*:}"
+    if [ "${db_credentials#*:}" != "${db_credentials}" ]; then
+      db_pass_decoded="$(url_decode "${db_credentials#*:}")"
+      if [ -n "${db_pass_decoded}" ]; then
+        DB_PASS="${db_pass_decoded}"
+        DB_PASS_SOURCE="DB_URL"
+        DB_PASS_FROM_URL="true"
+      fi
     fi
   else
     db_host_port="${db_credentials_and_host}"
@@ -45,13 +77,29 @@ if [ -n "${DATABASE_URL:-}" ]; then
   fi
 
   if [ -z "${DB_NAME}" ]; then
-    DB_NAME="${db_name_from_url}"
+    DB_NAME="$(url_decode "${db_name_from_url}")"
   fi
 fi
 
-# Map Railway/Postgres variables to Serverpod expected password variable.
-if [ -z "${SERVERPOD_PASSWORD_database:-}" ] && [ -n "${DB_PASS}" ]; then
+# Map resolved DB password to Serverpod expected password variable.
+# Always export when we have a resolved password to avoid stale env values.
+if [ -n "${DB_PASS}" ]; then
   export SERVERPOD_PASSWORD_database="${DB_PASS}"
+fi
+
+DB_SOURCE="config/production.yaml"
+if [ -n "${DB_URL}" ]; then
+  DB_SOURCE="DB_URL"
+elif [ -n "${PGHOST:-}${PGPORT:-}${PGDATABASE:-}${PGUSER:-}${PGPASSWORD:-}" ]; then
+  DB_SOURCE="PG* env vars"
+fi
+
+if [ -z "${DB_PASS_SOURCE}" ]; then
+  if [ -n "${SERVERPOD_PASSWORD_database:-}" ]; then
+    DB_PASS_SOURCE="SERVERPOD_PASSWORD_database"
+  else
+    DB_PASS_SOURCE="config/passwords.yaml"
+  fi
 fi
 
 if [ -f "config/production.yaml" ]; then
@@ -107,5 +155,15 @@ fi
 if [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ] && [ -n "${SERVICE_SECRET:-}" ]; then
   export SERVERPOD_PASSWORD_serviceSecret="${SERVICE_SECRET}"
 fi
+
+echo "[entrypoint] DB config source: ${DB_SOURCE}" >&2
+echo "[entrypoint] DB password source: ${DB_PASS_SOURCE}" >&2
+echo "[entrypoint] DB password came from URL: ${DB_PASS_FROM_URL}" >&2
+echo "[entrypoint] DB password length: ${#DB_PASS}" >&2
+echo "[entrypoint] DB host: ${DB_HOST:-<from config>}" >&2
+echo "[entrypoint] DB port: ${DB_PORT:-<from config>}" >&2
+echo "[entrypoint] DB name: ${DB_NAME:-<from config>}" >&2
+echo "[entrypoint] DB user: ${DB_USER:-<from config>}" >&2
+echo "[entrypoint] DB require SSL override: ${DB_REQUIRE_SSL:-<from config>}" >&2
 
 exec ./server --mode="${runmode}" --server-id="${serverid}" --logging="${logging}" --role="${role}"
