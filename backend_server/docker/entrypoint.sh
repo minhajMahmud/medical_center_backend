@@ -205,12 +205,33 @@ if [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ] && [ -n "${SERVERPOD_PASSWORD_
   export SERVERPOD_PASSWORD_serviceSecret="${SERVERPOD_PASSWORD_jwtSecret}"
 fi
 
+SECRET_SOURCE="env"
+
+# Last-resort fallback for platforms where no auth secret env vars are set.
+# Derive a stable 64-char secret from DB settings to keep auth functional.
+if [ -z "${SERVERPOD_PASSWORD_jwtSecret:-}" ] || [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ]; then
+  seed="${DB_PASS:-}${DB_USER:-}${DB_NAME:-}${DB_HOST:-}${DB_PORT:-}"
+  if [ -n "${seed}" ]; then
+    derived_secret="$(printf '%s' "${seed}" | sha256sum | awk '{print $1}')"
+    if [ -z "${SERVERPOD_PASSWORD_jwtSecret:-}" ]; then
+      export SERVERPOD_PASSWORD_jwtSecret="${derived_secret}"
+    fi
+    if [ -z "${SERVERPOD_PASSWORD_serviceSecret:-}" ]; then
+      export SERVERPOD_PASSWORD_serviceSecret="${derived_secret}"
+    fi
+    SECRET_SOURCE="derived-from-db-config"
+  else
+    SECRET_SOURCE="missing"
+  fi
+fi
+
 echo "[entrypoint] DB config source: ${DB_SOURCE}" >&2
 echo "[entrypoint] DB password source: ${DB_PASS_SOURCE}" >&2
 echo "[entrypoint] DB password came from URL: ${DB_PASS_FROM_URL}" >&2
 echo "[entrypoint] DB password length: ${#DB_PASS}" >&2
 echo "[entrypoint] JWT secret provided: $( [ -n "${SERVERPOD_PASSWORD_jwtSecret:-}" ] && echo true || echo false )" >&2
 echo "[entrypoint] Service secret provided: $( [ -n "${SERVERPOD_PASSWORD_serviceSecret:-}" ] && echo true || echo false )" >&2
+echo "[entrypoint] Secret source: ${SECRET_SOURCE}" >&2
 echo "[entrypoint] DB host: ${DB_HOST:-<from config>}" >&2
 echo "[entrypoint] DB port: ${DB_PORT:-<from config>}" >&2
 echo "[entrypoint] DB name: ${DB_NAME:-<from config>}" >&2
