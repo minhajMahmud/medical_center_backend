@@ -33,6 +33,20 @@ if [ -z "${DB_PASS}" ]; then
   fi
 fi
 
+# Fallback to Serverpod-specific password env vars if no DB password was resolved yet.
+if [ -z "${DB_PASS}" ]; then
+  DB_PASS="${SERVERPOD_PASSWORD_database:-${SERVERPOD_PASSWORD_DATABASE:-${SERVERPOD_DATABASE_PASSWORD:-}}}"
+  if [ -n "${DB_PASS}" ]; then
+    if [ -n "${SERVERPOD_PASSWORD_database:-}" ]; then
+      DB_PASS_SOURCE="SERVERPOD_PASSWORD_database"
+    elif [ -n "${SERVERPOD_PASSWORD_DATABASE:-}" ]; then
+      DB_PASS_SOURCE="SERVERPOD_PASSWORD_DATABASE"
+    else
+      DB_PASS_SOURCE="SERVERPOD_DATABASE_PASSWORD"
+    fi
+  fi
+fi
+
 DB_URL="${DATABASE_URL:-${DATABASE_PRIVATE_URL:-${DATABASE_PUBLIC_URL:-${POSTGRES_URL:-${PGURL:-}}}}}"
 
 if [ -n "${DB_URL}" ]; then
@@ -97,6 +111,10 @@ fi
 if [ -z "${DB_PASS_SOURCE}" ]; then
   if [ -n "${SERVERPOD_PASSWORD_database:-}" ]; then
     DB_PASS_SOURCE="SERVERPOD_PASSWORD_database"
+  elif [ -n "${SERVERPOD_PASSWORD_DATABASE:-}" ]; then
+    DB_PASS_SOURCE="SERVERPOD_PASSWORD_DATABASE"
+  elif [ -n "${SERVERPOD_DATABASE_PASSWORD:-}" ]; then
+    DB_PASS_SOURCE="SERVERPOD_DATABASE_PASSWORD"
   else
     DB_PASS_SOURCE="config/passwords.yaml"
   fi
@@ -109,6 +127,7 @@ if [ -f "config/production.yaml" ]; then
     -v port="${DB_PORT}" \
     -v name="${DB_NAME}" \
     -v user="${DB_USER}" \
+    -v password="${DB_PASS}" \
     -v require_ssl="${DB_REQUIRE_SSL:-}" '
 BEGIN { in_database = 0 }
 {
@@ -123,6 +142,10 @@ BEGIN { in_database = 0 }
   }
 
   if (in_database == 1) {
+    if (password != "" && $0 ~ /^  password:/) {
+      print "  password: " password
+      next
+    }
     if (host != "" && $0 ~ /^  host:/) {
       print "  host: " host
       next

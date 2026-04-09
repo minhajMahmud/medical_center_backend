@@ -34,6 +34,7 @@ database:
   port: 49620
   name: railway
   user: postgres
+  password: # Injected at container start from Railway env vars
   requireSsl: true
   #isUnixSocket: true # defaults to false
 
